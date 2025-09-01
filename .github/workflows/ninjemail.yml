@@ -1,0 +1,44 @@
+name: Ninjemail Automation
+
+on:
+  # تشغيل عند push للـ main branch
+  push:
+    branches: [ main ]
+  
+  # تشغيل يدوي من GitHub interface
+  workflow_dispatch:
+  
+  # تشغيل مجدول (اختياري)
+  schedule:
+    - cron: '0 9 * * *'  # كل يوم الساعة 9 صباحاً UTC
+
+jobs:
+  run-ninjemail:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # خطوة 1: تحميل الكود
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    # خطوة 2: إعداد Python
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    # خطوة 3: تثبيت المتطلبات
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    # خطوة 4: تشغيل Ninjemail script
+    - name: Run Ninjemail
+      env:
+        CAPSOLVER_API_KEY: ${{ secrets.CAPSOLVER_API_KEY }}
+        NOPECHA_API_KEY: ${{ secrets.NOPECHA_API_KEY }}
+        SMS_USERNAME: ${{ secrets.SMS_USERNAME }}
+        SMS_TOKEN: ${{ secrets.SMS_TOKEN }}
+      run: |
+        python main.py
